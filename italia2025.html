@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Trip to Italy</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <style>
+        /* Ensure the map covers the full page */
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .custom-marker {
+            font-size: 12px; /* Smaller text */
+            font-weight: bold;
+            color: white;
+            background-color: blue;
+            text-align: center;
+            line-height: 24px; /* Adjust line height for smaller text */
+            border-radius: 50%;
+            width: 24px; /* Smaller width */
+            height: 24px; /* Smaller height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Style for the custom itinerary panel */
+        .itinerary-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .itinerary-panel h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="itinerary-panel" class="itinerary-panel">
+        <h2>Italia 2025</h2>
+        <ul id="itinerary-list"></ul>
+    </div>
+
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([41.9028, 12.4964], 7.25); // Centered on Italy
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Array of locations with coordinates and descriptions
+        var locations = [
+            { coords: [43.76902071605125, 11.258132122954317], description: "Firenze", date: "2025-07-23" },
+            { coords: [43.722252710313334, 10.402587445174737], description: "Pisa", date: "2025-07-24" },
+            { coords: [43.317912006359016, 11.330728148641684], description: "Sienna", date: "2023-07-25" },
+            { coords: [41.89615433887018, 12.482431704833173], description: "Roma", date: "2025-07-26" },
+            { coords: [40.69801644647055, 14.487810195309807], description: "Castellammare Di Stabia", date: "2025-07-29" },
+            { coords: [41.6295134256271, 15.916492580258556], description: "Manfredonia", date: "2025-07-30" },
+            { coords: [41.398445698046416, 15.198435915786233], description: "Biccari", date: "2025-07-31" },
+            { coords: [40.53623810852102, 16.18574527822505], description: "Oliveto Lucano", date: "2025-08-03" },
+            { coords: [38.26921383774691, 16.298195289624324], description: "Siderno", date: "2025-08-06" },
+
+            { coords: [41.11384595245018, 16.871085865268682], description: "Bari", date: "2025-08-09" }
+        ];
+
+        // Function to create a custom marker icon with a number
+        function createNumberedIcon(number) {
+            return L.divIcon({
+                className: 'custom-marker',
+                html: number,
+                iconSize: [24, 24] // Smaller icon size
+            });
+        }
+
+        // Add markers with incrementing numbers
+        locations.forEach((location, index) => {
+            L.marker(location.coords, { icon: createNumberedIcon(index + 1) })
+                .bindPopup(`<b>Day ${index + 1}: ${location.description}</b>`)
+                .addTo(map);
+        });
+
+        // Create routing control
+        var routingControl = L.Routing.control({
+            waypoints: locations.map(location => L.latLng(location.coords)),
+            createMarker: function() { return null; }, // Prevents additional markers
+            routeWhileDragging: false,
+            show: false // Disables the default itinerary panel
+        }).addTo(map);
+
+        // Populate the custom itinerary panel with route info
+        function populateItineraryPanel() {
+            var itineraryList = document.getElementById('itinerary-list');
+            itineraryList.innerHTML = ''; // Clear existing list
+
+            locations.forEach((location, index) => {
+                var listItem = document.createElement('li');
+                listItem.innerHTML = `<strong>Day ${index + 1}:</strong> ${location.description} - <em>${location.date}</em>`;
+                itineraryList.appendChild(listItem);
+            });
+        }
+
+        // Call function to populate the itinerary panel
+        populateItineraryPanel();
+    </script>
+</body>
+</html>
